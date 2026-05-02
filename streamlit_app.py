@@ -10,6 +10,7 @@ st.markdown("""
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
 header {visibility: hidden;}
+a[href*="github"] {display: none !important;}
 </style>
 """, unsafe_allow_html=True)
 
