@@ -139,13 +139,26 @@ else:
             st.warning("আপনি ইতিমধ্যেই ভোট দিয়েছেন ❗")
 
     # -------- Results --------
-    st.subheader("📊 ফলাফল")
-    res = results()
+   # -------- Results (PERCENTAGE + TOTAL) --------
+st.subheader("📊 ফলাফল (%)")
 
-    for k in ["লাল", "গেরুয়া", "সবুজ"]:
-        st.write(f"{k}: {res.get(k, 0)}")
+res = results()
+total = total_votes()
 
-    st.subheader(f"🧮 মোট ভোট: {total_votes()}")
+percent_data = {}
+for k in ["Lal", "Gerua", "Sabuj"]:
+    count = res.get(k, 0)
+    percent = (count / total * 100) if total > 0 else 0
+    percent_data[k] = percent
+
+# Show percentage
+st.write(f"🔴 Lal: {percent_data['Lal']:.2f}%")
+st.write(f"🟠 Gerua: {percent_data['Gerua']:.2f}%")
+st.write(f"🟢 Sabuj: {percent_data['Sabuj']:.2f}%")
+
+# Show total votes
+st.markdown("---")
+st.subheader(f"🗳️ মোট ভোট: {total}")
 
     # -------- Logout --------
     if st.button("Logout"):
