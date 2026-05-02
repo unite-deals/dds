@@ -83,17 +83,14 @@ if "user" not in st.session_state:
 # -------------------- UI --------------------
 st.title("🗳️ নির্বাচনের সম্ভাব্য ফলাফল অনলাইনে যাচাই করুন")
 
-# 🔐 Privacy Message
 st.info("🔒 আপনার তথ্য গোপন থাকবে")
 
 # -------------------- AUTH --------------------
 if not st.session_state.user:
 
     menu = ["Login", "Register"]
-
     choice = st.radio("Select Option", menu, horizontal=True)
 
-    # -------- Register --------
     if choice == "Register":
         st.subheader("রেজিস্টার করুন")
 
@@ -107,7 +104,6 @@ if not st.session_state.user:
             else:
                 st.error(msg)
 
-    # -------- Login --------
     elif choice == "Login":
         st.subheader("লগইন করুন")
 
@@ -124,13 +120,13 @@ if not st.session_state.user:
             else:
                 st.error("ভুল ইউজারনেম বা পাসওয়ার্ড ❌")
 
-
 # -------------------- MAIN APP --------------------
 else:
     st.success(f"স্বাগতম {st.session_state.user} 🎉")
 
     # -------- Voting --------
-    option = st.radio("আপনার ভোট দিন:", ["লাল", "গেরুয়া", "সবুজ"])
+    options = ["লাল", "গেরুয়া", "সবুজ"]
+    option = st.radio("আপনার ভোট দিন:", options)
 
     if st.button("Vote"):
         if vote(st.session_state.user, option):
@@ -138,41 +134,36 @@ else:
         else:
             st.warning("আপনি ইতিমধ্যেই ভোট দিয়েছেন ❗")
 
-    # -------- Results --------
-   # -------- Results (PERCENTAGE + TOTAL) --------
-        st.subheader("📊 ফলাফল (%)")
+    # -------- Results (FIXED) --------
+    st.subheader("📊 ফলাফল (%)")
 
-        res = results()
-        total = total_votes()
+    res = results()
+    total = total_votes()
 
-        percent_data = {}
-        for k in ["Lal", "Gerua", "Sabuj"]:
-            count = res.get(k, 0)
-            percent = (count / total * 100) if total > 0 else 0
-            percent_data[k] = percent
+    percent_data = {}
+    for k in options:
+        count = res.get(k, 0)
+        percent = (count / total * 100) if total > 0 else 0
+        percent_data[k] = percent
 
-        # Show percentage
-        st.write(f"🔴 Lal: {percent_data['Lal']:.2f}%")
-        st.write(f"🟠 Gerua: {percent_data['Gerua']:.2f}%")
-        st.write(f"🟢 Sabuj: {percent_data['Sabuj']:.2f}%")
+    st.write(f"🔴 লাল: {percent_data['লাল']:.2f}%")
+    st.write(f"🟠 গেরুয়া: {percent_data['গেরুয়া']:.2f}%")
+    st.write(f"🟢 সবুজ: {percent_data['সবুজ']:.2f}%")
 
-        # Show total votes
-        st.markdown("---")
-        st.subheader(f"🗳️ মোট ভোট: {total}")
+    st.markdown("---")
+    st.subheader(f"🗳️ মোট ভোট: {total}")
 
     # -------- Logout --------
     if st.button("Logout"):
         st.session_state.user = None
         st.rerun()
 
-    # -------- Footer / Donation --------
+    # -------- Footer --------
     st.markdown("---")
-
     st.markdown("### 🎉 এটি একটি fun app")
     st.write("কোনো রকম ব্যক্তিগত তথ্য নেওয়া উদ্দেশ্য নয়।")
 
     st.markdown("### ❤️ Support করুন")
     st.write("এই অ্যাপটি কে develop করতে donate করুন এই QR CODE এ:")
 
-    # 👉 QR IMAGE (make sure file exists in same folder)
     st.image("qr.png", width=250)
