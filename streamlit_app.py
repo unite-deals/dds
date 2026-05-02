@@ -90,7 +90,8 @@ st.info("🔒 আপনার তথ্য গোপন থাকবে")
 if not st.session_state.user:
 
     menu = ["Login", "Register"]
-    choice = st.sidebar.selectbox("Menu", menu)
+
+    choice = st.radio("Select Option", menu, horizontal=True)
 
     # -------- Register --------
     if choice == "Register":
