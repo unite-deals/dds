@@ -16,7 +16,7 @@ header {visibility: hidden;}
 """, unsafe_allow_html=True)
 
 # -------------------- DB --------------------
-conn = psycopg2.connect(os.environ["postgresql://voting_db_aq0h_user:FnxKTEwqbdbMzSE1DqX14CZvjPmXOhW8@dpg-d7rfpq1j2pic73f9pam0-a/voting_db_aq0h"])
+conn = psycopg2.connect(os.environ["postgresql://my_voting_app_431z_user:dV1wWr5aieWckPUbOEBhBTXOurU0qO5w@dpg-d7rg56mgkk3c738jeldg-a/my_voting_app_431z"])
 c = conn.cursor()
 
 c.execute("""
