@@ -1,5 +1,7 @@
 import streamlit as st
-import sqlite3
+import os
+import psycopg2
+
 
 # -------------------- PAGE CONFIG --------------------
 st.set_page_config(page_title="Voting App", layout="centered")
@@ -10,12 +12,11 @@ st.markdown("""
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
 header {visibility: hidden;}
-a[href*="github"] {display: none !important;}
 </style>
 """, unsafe_allow_html=True)
 
 # -------------------- DB --------------------
-conn = sqlite3.connect("voting.db", check_same_thread=False)
+conn = psycopg2.connect(os.environ["postgresql://voting_db_aq0h_user:FnxKTEwqbdbMzSE1DqX14CZvjPmXOhW8@dpg-d7rfpq1j2pic73f9pam0-a/voting_db_aq0h"])
 c = conn.cursor()
 
 c.execute("""
@@ -83,14 +84,16 @@ if "user" not in st.session_state:
 # -------------------- UI --------------------
 st.title("🗳️ নির্বাচনের সম্ভাব্য ফলাফল অনলাইনে যাচাই করুন")
 
+# 🔐 Privacy Message
 st.info("🔒 আপনার তথ্য গোপন থাকবে")
 
 # -------------------- AUTH --------------------
 if not st.session_state.user:
 
     menu = ["Login", "Register"]
-    choice = st.radio("Select Option", menu, horizontal=True)
+    choice = st.sidebar.selectbox("Menu", menu)
 
+    # -------- Register --------
     if choice == "Register":
         st.subheader("রেজিস্টার করুন")
 
@@ -104,6 +107,7 @@ if not st.session_state.user:
             else:
                 st.error(msg)
 
+    # -------- Login --------
     elif choice == "Login":
         st.subheader("লগইন করুন")
 
@@ -120,13 +124,13 @@ if not st.session_state.user:
             else:
                 st.error("ভুল ইউজারনেম বা পাসওয়ার্ড ❌")
 
+
 # -------------------- MAIN APP --------------------
 else:
     st.success(f"স্বাগতম {st.session_state.user} 🎉")
 
     # -------- Voting --------
-    options = ["লাল", "গেরুয়া", "সবুজ"]
-    option = st.radio("আপনার ভোট দিন:", options)
+    option = st.radio("আপনার ভোট দিন:", ["লাল", "গেরুয়া", "সবুজ"])
 
     if st.button("Vote"):
         if vote(st.session_state.user, option):
@@ -134,36 +138,28 @@ else:
         else:
             st.warning("আপনি ইতিমধ্যেই ভোট দিয়েছেন ❗")
 
-    # -------- Results (FIXED) --------
-    st.subheader("📊 ফলাফল (%)")
-
+    # -------- Results --------
+    st.subheader("📊 ফলাফল")
     res = results()
-    total = total_votes()
 
-    percent_data = {}
-    for k in options:
-        count = res.get(k, 0)
-        percent = (count / total * 100) if total > 0 else 0
-        percent_data[k] = percent
+    for k in ["লাল", "গেরুয়া", "সবুজ"]:
+        st.write(f"{k}: {res.get(k, 0)}")
 
-    st.write(f"🔴 লাল: {percent_data['লাল']:.2f}%")
-    st.write(f"🟠 গেরুয়া: {percent_data['গেরুয়া']:.2f}%")
-    st.write(f"🟢 সবুজ: {percent_data['সবুজ']:.2f}%")
-
-    st.markdown("---")
-    st.subheader(f"🗳️ মোট ভোট: {total}")
+    st.subheader(f"🧮 মোট ভোট: {total_votes()}")
 
     # -------- Logout --------
     if st.button("Logout"):
         st.session_state.user = None
         st.rerun()
 
-    # -------- Footer --------
+    # -------- Footer / Donation --------
     st.markdown("---")
+
     st.markdown("### 🎉 এটি একটি fun app")
     st.write("কোনো রকম ব্যক্তিগত তথ্য নেওয়া উদ্দেশ্য নয়।")
 
     st.markdown("### ❤️ Support করুন")
     st.write("এই অ্যাপটি কে develop করতে donate করুন এই QR CODE এ:")
 
+    # 👉 QR IMAGE (make sure file exists in same folder)
     st.image("qr.png", width=250)
